@@ -28,4 +28,4 @@ jobs:
       - name: "Push to dockerhub"
         if: github.event_name != 'pull_request'
         run: |
-          docker push pengisch/qgis:latest
+          docker push opengisch/qgis:latest
