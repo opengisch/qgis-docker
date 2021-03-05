@@ -35,11 +35,14 @@ jobs:
           QGIS_STABLE=$(echo "${QGIS}" | jq ".stable")
           QGIS_LTR=$(echo "${QGIS}" | jq ".ltr")
 
+          QGIS_STABLE=${QGIS_STABLE//\"/}
+          QGIS_LTR=${QGIS_LTR//\"/}
+
           MATRIX="{\"release_type\":["
 
           echo "Existing stable docker: ${DOCKER_STABLE}"
           echo "Available stable QGIS: ${QGIS_STABLE}"
-          UPDATE_STABLE=$(python3 -c "from packaging import version; print(1 if ${DOCKER_STABLE} == 'null' or version.parse(${DOCKER_STABLE}) < version.parse(${QGIS_STABLE}) else 0)")
+          UPDATE_STABLE=$(python3 -c "from packaging import version; print(1 if '${DOCKER_STABLE}' == 'null' or version.parse('${DOCKER_STABLE}') < version.parse('${QGIS_STABLE}') else 0)")
           if [[ ${UPDATE_STABLE} == 1 ]]; then
             echo "--> stable will be updated"
             MATRIX=${MATRIX}"\stable\","
@@ -49,7 +52,7 @@ jobs:
 
           echo "Existing LTR docker: ${DOCKER_LTR}"
           echo "Available LTR QGIS: ${QGIS_LTR}"
-          UPDATE_LTR=$(python3 -c "from packaging import version; print(1 if ${DOCKER_LTR} == 'null' or version.parse(${DOCKER_LTR}) < version.parse(${QGIS_LTR}) else 0)")
+          UPDATE_LTR=$(python3 -c "from packaging import version; print(1 if '${DOCKER_LTR}' == 'null' or version.parse('${DOCKER_LTR}') < version.parse('${QGIS_LTR}') else 0)")
           if [[ ${UPDATE_LTR} == 1 ]]; then
             echo "--> LTR will be updated"
             MATRIX=${MATRIX}"\ltr\","
@@ -59,7 +62,7 @@ jobs:
 
           MATRIX=${MATRIX}"]}"
           echo "::set-output name=matrix::${MATRIX}"
-          echo "::set-output name=versions::{\"stable\":\"${QGIS_STABLE//\"/}\", \"ltr\":\"${QGIS_LTR//\"/}\"}"
+          echo "::set-output name=versions::{\"stable\":\"${QGIS_STABL}\", \"ltr\":\"${QGIS_LTR}\"}"
 
 
   build-docker:
