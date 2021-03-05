@@ -77,8 +77,8 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.docker_username }}
           DOCKER_PASSWORD: ${{ secrets.docker_password }}
-          RELEASE_TYPE=${{ matrix.release_type }}
-          VERSIONS=${{ needs.determine-matrix.outputs.versions }}
+          RELEASE_TYPE: ${{ matrix.release_type }}
+          VERSIONS: ${{ needs.determine-matrix.outputs.versions }}
         run: |
           QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}")
           echo "QGIS version: ${QGIS_VERSION}"
