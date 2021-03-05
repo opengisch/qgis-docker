@@ -71,21 +71,65 @@ jobs:
     runs-on: ubuntu-latest
     needs: determine-matrix
 
+    env:
+      DOCKER_USERNAME: ${{ secrets.docker_username }}
+      DOCKER_PASSWORD: ${{ secrets.docker_password }}
+
     strategy:
       matrix: ${{ fromJSON( needs.determine-matrix.outputs.matrix ) }}
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build QGIS testing Docker Container
+      - name: Define parameters
         env:
-          DOCKER_USERNAME: ${{ secrets.docker_username }}
-          DOCKER_PASSWORD: ${{ secrets.docker_password }}
           RELEASE_TYPE: ${{ matrix.release_type }}
           VERSIONS: ${{ needs.determine-matrix.outputs.versions }}
         run: |
           QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}")
-          echo "QGIS version: ${QGIS_VERSION//\"/}"
-          ./scripts/build-push-docker.sh ${RELEASE_TYPE} ${QGIS_VERSION//\"/}
+          QGIS_VERSION=${QGIS_VERSION//\"/}
+
+          MAJOR_QGIS_VERSION=$(echo "${QGIS_VERSION}" | cut -d. -f1,2)
+
+          if [[ ${RELEASE_TYPE} == ltr ]]; then
+            QGIS_UBUNTU_PPA='ubuntu-ltr'
+          else
+            QGIS_UBUNTU_PPA='ubuntu'
+          fi
+
+          echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
+          echo "QGIS_VERSION=${QGIS_VERSION}" >> $GITHUB_ENV
+          echo "MAJOR_QGIS_VERSION=${MAJOR_QGIS_VERSION}" >> $GITHUB_ENV
+          echo "UBUNTU_DIST=${UBUNTU_DIST}" >> $GITHUB_ENV
+          echo "QGIS_UBUNTU_PPA=${QGIS_UBUNTU_PPA}" >> $GITHUB_ENV
+
+          echo "RELEASE_TYPE: ${RELEASE_TYPE}"
+          echo "QGIS_VERSION: ${QGIS_VERSION}"
+          echo "MAJOR_QGIS_VERSION: ${MAJOR_QGIS_VERSION}"
+          echo "UBUNTU_DIST: ${UBUNTU_DIST}"
+          echo "QGIS_UBUNTU_PPA: ${QGIS_UBUNTU_PPA}"
+
+      - name: Docker build
+        run: |
+          docker build \
+            --build-arg REPO=${QGIS_UBUNTU_PPA} \
+            --build-arg UBUNTU_DIST=${UBUNTU_DIST} \
+            --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+            -t opengisch/qgis:${RELEASE_TYPE} .
+
+      - name: Docker tag
+        run: |
+          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${RELEASE_TYPE}
+          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${UBUNTU_DIST}-${MAJOR_QGIS_VERSION}
+          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${UBUNTU_DIST}-${QGIS_VERSION}
+
+      - name: Docker push
+        run: |
+          docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+          docker push opengisch/qgis:${RELEASE_TYPE}
+          docker push opengisch/qgis:${UBUNTU_DIST}-${MAJOR_QGIS_VERSION}
+          docker push opengisch/qgis:${UBUNTU_DIST}-${QGIS_VERSION}
+
 
 
