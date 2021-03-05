@@ -11,7 +11,5 @@ RUN apt update && apt install -y gnupg wget software-properties-common && \
     chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
     add-apt-repository "deb https://qgis.org/${REPO} ${UBUNTU_DIST} main" && \
     apt update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y qgis python3-qgis python3-qgis-common && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y qgis python3-qgis python3-qgis-common python-pytest && \
     apt-get clean
-
-RUN pip3 install pytest
