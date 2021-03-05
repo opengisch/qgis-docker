@@ -1,12 +1,17 @@
 
-FROM ubuntu:20.04
+ARG UBUNTU_VERSION=20.04
 
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install wget gpg && \
-    wget -O - https://qgis.org/downloads/qgis-2020.gpg.key | gpg --import && \
-    gpg --export --armor F7E06F06199EF2F2 | apt-key add - && \
-    echo 'deb http://qgis.org/ubuntu focal main' > /etc/apt/sources.list.d/ubuntu-qgis.list
+FROM ubuntu:${UBUNTU_VERSION}
 
-RUN apt-get update && \
+ARG UBUNTU_DIST=focal
+ARG REPO=ubuntu
+
+RUN apt update && apt install -y gnupg wget software-properties-common && \
+    wget -qO - https://qgis.org/downloads/qgis-2020.gpg.key | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import && \
+    chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg && \
+    add-apt-repository "deb https://qgis.org/${REPO} ${UBUNTU_DIST} main" && \
+    apt update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y qgis python3-qgis python3-qgis-common && \
     apt-get clean
+
+RUN pip3 install pytest
