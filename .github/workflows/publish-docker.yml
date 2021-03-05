@@ -85,7 +85,7 @@ jobs:
           VERSIONS: ${{ needs.determine-matrix.outputs.versions }}
         run: |
           QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}")
-          echo "QGIS version: ${QGIS_VERSION}"
-          ./scripts/build-push-docker.sh ${RELEASE_TYPE} ${QGIS_VERSION}
+          echo "QGIS version: ${QGIS_VERSION//\"/}"
+          ./scripts/build-push-docker.sh ${RELEASE_TYPE} ${QGIS_VERSION//\"/}
 
 
