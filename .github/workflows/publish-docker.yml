@@ -61,8 +61,9 @@ jobs:
           fi
 
           MATRIX=${MATRIX}"]}"
+          echo "${MATRIX}"
           echo "::set-output name=matrix::${MATRIX}"
-          echo "::set-output name=versions::{\"stable\":\"${QGIS_STABL}\", \"ltr\":\"${QGIS_LTR}\"}"
+          echo "::set-output name=versions::{\"stable\":\"${QGIS_STABLE}\", \"ltr\":\"${QGIS_LTR}\"}"
 
 
   build-docker:
