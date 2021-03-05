@@ -32,8 +32,8 @@ jobs:
 
           DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable")
           DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr")
-          QGIS_STABLE=$(echo "${QGIS}" | jq ".stable")
-          QGIS_LTR=$(echo "${QGIS}" | jq ".ltr")
+          QGIS_STABLE=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".stable")
+          QGIS_LTR=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".ltr")
 
           QGIS_STABLE=${QGIS_STABLE//\"/}
           QGIS_LTR=${QGIS_LTR//\"/}
