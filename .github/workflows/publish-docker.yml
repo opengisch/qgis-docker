@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - master
+    paths:
+      - .github/workflows/publish-docker.yml
+      - Dockerfile
+
   workflow_dispatch:
+
   schedule:
     # weekly
     - cron: '* * * * 1'
@@ -19,13 +24,15 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
+      matrix: ${{ steps.compute-output.outputs.matrix }}
       versions: ${{ steps.matrix.outputs.versions }}
 
     steps:
       - uses: actions/checkout@v2
 
       - id: matrix
+        # on push always rebuild all
+        if: github.event_name != 'push'
         run: |
           DOCKER=$(./scripts/get_docker_image_version.py)
           QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${UBUNTU_DIST})
@@ -63,6 +70,16 @@ jobs:
           VERSIONS="{\"stable\":\"${QGIS_STABLE}\", \"ltr\":\"${QGIS_LTR}\"}"
           echo "versions: ${VERSIONS}"
           echo "::set-output name=versions::${VERSIONS}"
+
+      - id: compute-output
+        name: output matrix
+        env:
+          MATRIX: ${{ steps.matrix.outputs.matrix }}
+        run: |
+          DEFAULT="{\"release_type\":[\"stable\", \"ltr\"]}"
+          MATRIX=${MATRIX:-${DEFAULT}}
+          echo "matrix: ${MATRIX}"
+          echo "::set-output name=matrix::${MATRIX}"
 
 
   build-docker:
@@ -122,6 +139,9 @@ jobs:
           docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${RELEASE_TYPE}
           docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${UBUNTU_DIST}-${MAJOR_QGIS_VERSION}
           docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${UBUNTU_DIST}-${QGIS_VERSION}
+          if [[ ${RELEASE_TYPE} == stable ]]; then
+            docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:latest
+          fi
 
       - name: Docker push
         run: |
@@ -130,6 +150,8 @@ jobs:
           docker push opengisch/qgis:${RELEASE_TYPE}
           docker push opengisch/qgis:${UBUNTU_DIST}-${MAJOR_QGIS_VERSION}
           docker push opengisch/qgis:${UBUNTU_DIST}-${QGIS_VERSION}
-
+          if [[ ${RELEASE_TYPE} == stable ]]; then
+            docker push opengisch/qgis:latest
+          fi
 
 
