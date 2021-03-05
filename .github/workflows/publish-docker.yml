@@ -45,7 +45,7 @@ jobs:
           UPDATE_STABLE=$(python3 -c "from packaging import version; print(1 if '${DOCKER_STABLE}' == 'null' or version.parse('${DOCKER_STABLE}') < version.parse('${QGIS_STABLE}') else 0)")
           if [[ ${UPDATE_STABLE} == 1 ]]; then
             echo "--> stable will be updated"
-            MATRIX=${MATRIX}"\stable\","
+            MATRIX=${MATRIX}"\"stable\", "
           else
             echo "--> stable is up to date"
           fi
@@ -55,7 +55,7 @@ jobs:
           UPDATE_LTR=$(python3 -c "from packaging import version; print(1 if '${DOCKER_LTR}' == 'null' or version.parse('${DOCKER_LTR}') < version.parse('${QGIS_LTR}') else 0)")
           if [[ ${UPDATE_LTR} == 1 ]]; then
             echo "--> LTR will be updated"
-            MATRIX=${MATRIX}"\ltr\","
+            MATRIX=${MATRIX}"\"ltr\","
           else
             echo "--> LTR is up to date"
           fi
