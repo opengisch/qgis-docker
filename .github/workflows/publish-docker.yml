@@ -30,10 +30,10 @@ jobs:
           DOCKER=$(./scripts/get_docker_image_version.py)
           QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${UBUNTU_DIST})
 
-          DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable" | sed 's/"//g')
-          DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr" | sed 's/"//g' | sed 's/"//g')
-          QGIS_STABLE=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".stable" | sed 's/"//g')
-          QGIS_LTR=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".ltr" | sed 's/"//g')
+          DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable" | sed 's/"//g' | cut -d- -f2)
+          DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr" | sed 's/"//g' | sed 's/"//g' | cut -d- -f2)
+          QGIS_STABLE=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".stable" | sed 's/"//g' | cut -d- -f2)
+          QGIS_LTR=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".ltr" | sed 's/"//g' | cut -d- -f2)
 
           MATRIX="{\"release_type\":["
 
@@ -118,16 +118,16 @@ jobs:
       - name: Docker tag
         run: |
           docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${RELEASE_TYPE}
-          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${MAJOR_QGIS_VERSION}
-          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${QGIS_VERSION}
+          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${UBUNTU_DIST}-${MAJOR_QGIS_VERSION}
+          docker tag opengisch/qgis:${RELEASE_TYPE} opengisch/qgis:${UBUNTU_DIST}-${QGIS_VERSION}
 
       - name: Docker push
         run: |
           docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
           docker push opengisch/qgis:${RELEASE_TYPE}
-          docker push opengisch/qgis:${MAJOR_QGIS_VERSION}
-          docker push opengisch/qgis:${QGIS_VERSION}
+          docker push opengisch/qgis:${UBUNTU_DIST}-${MAJOR_QGIS_VERSION}
+          docker push opengisch/qgis:${UBUNTU_DIST}-${QGIS_VERSION}
 
 
 
