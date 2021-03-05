@@ -70,6 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: determine-matrix
 
+    if: needs.determine-matrix.outputs.matrix != '{"release_type":[]}'
+
     env:
       DOCKER_USERNAME: ${{ secrets.docker_username }}
       DOCKER_PASSWORD: ${{ secrets.docker_password }}
