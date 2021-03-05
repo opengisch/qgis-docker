@@ -33,6 +33,7 @@ jobs:
       - id: matrix
         # on push always rebuild all
         if: github.event_name != 'push'
+        name: determine what to build
         run: |
           DOCKER=$(./scripts/get_docker_image_version.py)
           QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${UBUNTU_DIST})
