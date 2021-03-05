@@ -23,6 +23,8 @@ jobs:
       versions: ${{ steps.matrix.outputs.versions }}
 
     steps:
+      - uses: actions/checkout@v2
+
       - id: matrix
         run: |
           DOCKER=$(./scripts/get_docker_image_version.py)
@@ -71,15 +73,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-    - name: Build QGIS testing Docker Container
-      env:
-        DOCKER_USERNAME: ${{ secrets.docker_username }}
-        DOCKER_PASSWORD: ${{ secrets.docker_password }}
-        RELEASE_TYPE=${{ matrix.release_type }}
-        VERSIONS=${{ needs.determine-matrix.outputs.versions }}
-      run: |
-        QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}")
-        echo "QGIS version: ${QGIS_VERSION}"
-        ./scripts/build-push-docker.sh ${RELEASE_TYPE} ${QGIS_VERSION}
+      - name: Build QGIS testing Docker Container
+        env:
+          DOCKER_USERNAME: ${{ secrets.docker_username }}
+          DOCKER_PASSWORD: ${{ secrets.docker_password }}
+          RELEASE_TYPE=${{ matrix.release_type }}
+          VERSIONS=${{ needs.determine-matrix.outputs.versions }}
+        run: |
+          QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}")
+          echo "QGIS version: ${QGIS_VERSION}"
+          ./scripts/build-push-docker.sh ${RELEASE_TYPE} ${QGIS_VERSION}
 
 
