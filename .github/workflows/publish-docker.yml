@@ -32,8 +32,8 @@ jobs:
 
           DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable" | sed 's/"//g' | cut -d- -f2)
           DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr" | sed 's/"//g' | sed 's/"//g' | cut -d- -f2)
-          QGIS_STABLE=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".stable" | sed 's/"//g' | cut -d- -f2)
-          QGIS_LTR=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".ltr" | sed 's/"//g' | cut -d- -f2)
+          QGIS_STABLE=$(echo "${QGIS}" | jq ".stable" | sed 's/"//g')
+          QGIS_LTR=$(echo "${QGIS}" | jq ".ltr" | sed 's/"//g')
 
           MATRIX="{\"release_type\":["
 
