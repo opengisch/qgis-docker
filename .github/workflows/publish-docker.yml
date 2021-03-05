@@ -30,13 +30,10 @@ jobs:
           DOCKER=$(./scripts/get_docker_image_version.py)
           QGIS=$(./scripts/get_ubuntu_qgis_package_version.py -d ${UBUNTU_DIST})
 
-          DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable")
-          DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr")
-          QGIS_STABLE=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".stable")
-          QGIS_LTR=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".ltr")
-
-          QGIS_STABLE=${QGIS_STABLE//\"/}
-          QGIS_LTR=${QGIS_LTR//\"/}
+          DOCKER_STABLE=$(echo "${DOCKER}" | jq ".stable" | sed 's/"//g')
+          DOCKER_LTR=$(echo "${DOCKER}" | jq ".ltr" | sed 's/"//g' | sed 's/"//g')
+          QGIS_STABLE=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".stable" | sed 's/"//g')
+          QGIS_LTR=${UBUNTU_DIST}-$(echo "${QGIS}" | jq ".ltr" | sed 's/"//g')
 
           MATRIX="{\"release_type\":["
 
@@ -86,8 +83,7 @@ jobs:
           RELEASE_TYPE: ${{ matrix.release_type }}
           VERSIONS: ${{ needs.determine-matrix.outputs.versions }}
         run: |
-          QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}")
-          QGIS_VERSION=${QGIS_VERSION//\"/}
+          QGIS_VERSION=$(echo "${VERSIONS}" | jq ".${RELEASE_TYPE}" | sed 's/"//g')
 
           MAJOR_QGIS_VERSION=$(echo "${QGIS_VERSION}" | cut -d. -f1,2)
 
